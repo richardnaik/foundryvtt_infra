@@ -16,4 +16,21 @@ resource "google_compute_instance" "foundry" {
       nat_ip=var.public_ip
     }
   }
+
+  metadata = {
+    "ssh-keys" = <<EOT
+      ubuntu:${file(var.public_key)}
+     EOT
+  }
+
+   provisioner "remote-exec" {
+    inline = ["sudo apt update", "sudo apt install python3 -y", "echo Done!"]
+
+    connection {
+      host        = var.public_ip
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key)
+    }
+  }
 }
